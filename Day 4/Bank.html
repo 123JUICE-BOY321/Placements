@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Loan Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 10px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Student Loan Checker</h2>
+
+<input type="text" id="name" placeholder="Student Name">
+<input type="number" id="age" placeholder="Age">
+<input type="text" id="course" placeholder="Course">
+<input type="number" id="income" placeholder="Family Income">
+<input type="number" id="loan" placeholder="Loan Amount">
+
+<button onclick="saveApplication()">Check & Save</button>
+
+<h3 id="result"></h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Course</th>
+            <th>Loan</th>
+            <th>Status</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+</table>
+
+<script>
+    let applications =
+        JSON.parse(localStorage.getItem("applications")) || [];
+
+    function saveApplication() {
+        let name = document.getElementById("name").value;
+        let age = Number(document.getElementById("age").value);
+        let course = document.getElementById("course").value;
+        let income = Number(document.getElementById("income").value);
+        let loan = Number(document.getElementById("loan").value);
+
+        if (!name || !age || !course || !income || !loan) {
+            alert("Fill all fields");
+            return;
+        }
+
+        let status =
+            age >= 18 &&
+            income <= 1000000 &&
+            loan <= 2000000
+            ? "Eligible"
+            : "Not Eligible";
+
+        document.getElementById("result").innerText =
+            "Result: " + status;
+
+        applications.push({
+            name,
+            course,
+            loan,
+            status
+        });
+
+        localStorage.setItem(
+            "applications",
+            JSON.stringify(applications)
+        );
+
+        displayData();
+
+        document.getElementById("name").value = "";
+        document.getElementById("age").value = "";
+        document.getElementById("course").value = "";
+        document.getElementById("income").value = "";
+        document.getElementById("loan").value = "";
+    }
+
+    function displayData() {
+        let table = document.getElementById("tableBody");
+        table.innerHTML = "";
+
+        applications.forEach((app, index) => {
+            table.innerHTML += `
+                <tr>
+                    <td>${app.name}</td>
+                    <td>${app.course}</td>
+                    <td>${app.loan}</td>
+                    <td>${app.status}</td>
+                    <td>
+                        <button onclick="deleteData(${index})">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function deleteData(index) {
+        applications.splice(index, 1);
+
+        localStorage.setItem(
+            "applications",
+            JSON.stringify(applications)
+        );
+
+        displayData();
+    }
+
+    displayData();
+</script>
+
+</body>
+</html>
